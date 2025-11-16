@@ -11,7 +11,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-from tweet_emd import AccountEmbeddings, earth_movers_distance
+from tweet_emd import (
+    AccountEmbeddings,
+    earth_movers_distance,
+    load_account_embeddings,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -176,3 +180,52 @@ def plot_tweet_projection(
     ax.legend(loc="best", markerscale=2)
     plt.tight_layout()
     plt.show()
+
+
+# ---------------------------------------------------------------------------
+# Convenience CLI entry point
+# ---------------------------------------------------------------------------
+
+
+def main(dataset_path: str = "data/tweets_400.csv", max_edges: int = 50) -> None:
+    """Load embeddings then render all three visuals sequentially.
+
+    Running ``python visualizations.py`` will compute embeddings for the supplied
+    dataset (defaults to the bundled 400-tweet CSV) and pop up the heatmap,
+    network, and 2D projection in order. The goal is to provide a single,
+    copy-paste-friendly entry point for demos.
+    """
+
+    embeddings = load_account_embeddings(dataset_path)
+
+    # Plot 1: quick overview of all pairwise distances.
+    plot_emd_heatmap(embeddings)
+
+    # Plot 2: a graph view that highlights the strongest relationships.
+    plot_similarity_network(embeddings, max_edges=max_edges)
+
+    # Plot 3: point cloud showing tweet clusters per account.
+    plot_tweet_projection(embeddings)
+
+
+if __name__ == "__main__":
+    # Keep the CLI minimal and friendly: optional dataset and max_edges arguments
+    # can be provided positionally when invoking the script.
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run all tweet-EMD visuals.")
+    parser.add_argument(
+        "dataset",
+        nargs="?",
+        default="data/tweets_400.csv",
+        help="Path to the tweets CSV (default: data/tweets_400.csv)",
+    )
+    parser.add_argument(
+        "--max-edges",
+        type=int,
+        default=50,
+        help="Maximum number of edges to draw in the similarity network (default: 50)",
+    )
+
+    args = parser.parse_args()
+    main(dataset_path=args.dataset, max_edges=args.max_edges)

@@ -16,6 +16,12 @@ Run the quick CLI demo:
 python tweet_emd.py --dataset data/tweets_400.csv
 ```
 
+Run all three visualizations from one entry point:
+
+```bash
+python visualizations.py data/tweets_400.csv --max-edges 40
+```
+
 Draw the heatmap visualization:
 
 ```bash
